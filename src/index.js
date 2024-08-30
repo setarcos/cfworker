@@ -9,7 +9,7 @@
 import mirror from './mirror.txt'
 import intro from './intro.html'
 import { statusRequest } from './status.js'
-import { addRecord } from './api.js'
+import { addRecord, deleteRecord, updateRecord, editRecord } from './api.js'
 
 export default {
   async fetch(request, environment, context) {
@@ -41,11 +41,24 @@ export default {
       return new Response('Method Not Allowed', { status: 405 })
     }
 
-    if (pathname == '/op/add') {
-      return addRecord(request, environment)
-    }
+    const match = pathname.match(/^\/op\/(add|delete|update|edit)(?:\/(.+))?$/)
 
-    return new Response('Not Found!', { status: 404 })
+    switch (match[1]) {
+      case 'add':
+        return addRecord(request, environment)
+
+      case 'delete':
+        return deleteRecord(match[2], environment)
+
+      case 'update':
+        return updateRecord(request, match[2], environment)
+
+      case 'edit':
+        return editRecord(request, match[2], environment)
+
+      default:
+        return new Response('Command not found', { status: 404 })
+    }
   }
 }
 

@@ -13,16 +13,62 @@ export async function addRecord(request, env) {
        .bind(name, loong_ver, x86_ver, repo, status)
        .run()
 
-    return new Response(JSON.stringify({ result: 'OK' }), {
-      headers: { 'Content-Type': 'application/json' },
-      status: 200
-    })
+    return createJsonResponse('OK', 200)
   } catch (error) {
     console.log(error)
-    return new Response(JSON.stringify({ result: 'Error' }), {
-      headers: { 'Content-Type': 'application/json' },
-      status: 500
-    })
+    return createJsonResponse('Error', 500)
   }
 }
 
+export async function deleteRecord(name, env) {
+  const db = env.DB
+
+  try {
+    await db.prepare('DELETE FROM packages WHERE name = ?').bind(name).run()
+    return createJsonResponse('OK', 200)
+  } catch (error) {
+    return createJsonResponse('Error', 500)
+  }
+}
+
+export async function updateRecord(request, name, env) {
+  const db = env.DB
+
+  try {
+    const formData = await request.formData()
+    const status = formData.get('status')
+    await db.prepare('UPDATE packages SET build_status = ? WHERE name = ?')
+       .bind(status, name)
+       .run()
+    return createJsonResponse('OK', 200)
+  } catch (error) {
+    return createJsonResponse('Error', 500)
+  }
+}
+
+export async function editRecord(request, name, env) {
+  const db = env.DB
+
+  try {
+    const formData = await request.formData()
+    const loong_ver = formData.get('loong_ver')
+    const x86_ver = formData.get('x86_ver')
+    const repo = formData.get('repo')
+    const status = formData.get('status')
+
+    await db.prepare('UPDATE packages SET loong_ver = ?, x86_ver = ?, repo = ?, build_status = ? WHERE name = ?')
+       .bind(loong_ver, x86_ver, repo, status, name)
+       .run()
+
+    return createJsonResponse('OK', 200)
+  } catch (error) {
+    return createJsonResponse('Error', 500)
+  }
+}
+
+function createJsonResponse(result, status) {
+  return new Response(JSON.stringify({ result }), {
+    headers: { 'Content-Type': 'application/json' },
+    status: status
+  })
+}
