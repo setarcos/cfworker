@@ -15,3 +15,6 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          secrets: ARCH_API_KEY
+        env:
+          ARCH_API_KEY: ${{ secrets.ARCH_API_KEY }}
