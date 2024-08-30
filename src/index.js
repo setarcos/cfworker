@@ -32,7 +32,7 @@ export default {
     if (pathname.startsWith('/op')) {
       const apiKey = request.headers.get('x-api-key')
 
-      if (!apiKey || apiKey !== 'your-secret-api-key') {
+      if (!apiKey || apiKey !== environment.ARCH_API_KEY) {
         return new Response('Unauthorized', { status: 401 })
       }
     }
